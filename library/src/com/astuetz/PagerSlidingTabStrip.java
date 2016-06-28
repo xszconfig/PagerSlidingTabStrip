@@ -353,12 +353,22 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 	private class PageListener implements OnPageChangeListener {
 
 		@Override
-		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		public void onPageScrolled(final int position, final float positionOffset, final int positionOffsetPixels) {
 
 			currentPosition = position;
 			currentPositionOffset = positionOffset;
 
-			scrollToChild(position, (int) (positionOffset * tabsContainer.getChildAt(position).getWidth()));
+            int childWidth = tabsContainer.getChildAt(position).getWidth();
+            if (childWidth == 0) { // view is not yet constructed, wait and scroll later.
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollToChild(position, (int) (positionOffset * childWidth));
+                    }
+                }, 50);
+            } else {
+                scrollToChild(position, (int) (positionOffset * childWidth));
+            }
 
 			invalidate();
 
